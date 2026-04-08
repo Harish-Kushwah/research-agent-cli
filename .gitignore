@@ -3,3 +3,6 @@ Vault
 Vault/Harish/*
 __pycache__/
 *.pyc
+terminal-app/node_modules/
+terminal-app/dist/
+terminal-app/

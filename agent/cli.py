@@ -6,6 +6,11 @@ from agent.pipeline import run_agent
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the generic research agent.")
+    parser.add_argument(
+        "--app",
+        action="store_true",
+        help="Launch the desktop terminal app.",
+    )
     parser.add_argument("--query", default=DEFAULT_QUERY, help="Search query to run.")
     parser.add_argument(
         "--vault-dir",
@@ -30,6 +35,12 @@ def main() -> int:
         help="Run repeatedly every N minutes. Use 0 for one-off execution.",
     )
     args = parser.parse_args()
+
+    if args.app:
+        from agent.desktop_app import launch_desktop_app
+
+        launch_desktop_app()
+        return 0
 
     config = AppConfig(
         vault_dir=_path_from_string(args.vault_dir),

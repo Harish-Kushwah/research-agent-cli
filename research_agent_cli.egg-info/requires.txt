@@ -1,0 +1,9 @@
+apscheduler==3.10.4
+beautifulsoup4==4.13.4
+certifi==2026.2.25
+charset-normalizer==3.4.7
+ddgs==9.6.1
+idna==3.11
+ollama==0.6.0
+requests==2.33.1
+urllib3==2.6.3
