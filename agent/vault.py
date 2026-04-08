@@ -1,10 +1,10 @@
-from pathlib import Path
+﻿from pathlib import Path
 from urllib.parse import urlparse
 
-from ui_news_agent.config import AppConfig, RunPaths
-from ui_news_agent.models import SourceNote
-from ui_news_agent.search import scrape_page
-from ui_news_agent.utils import slugify, write_text
+from agent.config import AppConfig, RunPaths
+from agent.models import SourceNote
+from agent.search import scrape_page
+from agent.utils import slugify, write_text
 
 
 def ensure_vault_dirs(config: AppConfig, run_paths: RunPaths) -> None:
@@ -12,6 +12,40 @@ def ensure_vault_dirs(config: AppConfig, run_paths: RunPaths) -> None:
     config.sources_root.mkdir(parents=True, exist_ok=True)
     run_paths.report_path.parent.mkdir(parents=True, exist_ok=True)
     run_paths.sources_dir.mkdir(parents=True, exist_ok=True)
+
+
+
+def ensure_memory_file(config: AppConfig) -> None:
+    if config.memory_file.exists():
+        return
+
+    content = "\n".join(
+        [
+            "# Research Agent Memory",
+            "",
+            "Use this file to store reusable context for future runs.",
+            "",
+            "## Preferences",
+            "",
+            "- Prefer concise bullet summaries.",
+            "- Highlight key risks and caveats.",
+            "- Call out important companies, products, and dates when available.",
+            "",
+            "## Ongoing Topics",
+            "",
+            "- Add recurring research themes here.",
+            "",
+        ]
+    )
+    write_text(config.memory_file, content)
+
+
+
+def load_memory(config: AppConfig) -> str:
+    if not config.memory_file.exists():
+        return ""
+    return config.memory_file.read_text(encoding="utf-8")
+
 
 
 def create_source_notes(run_paths: RunPaths, urls: list[str]) -> list[SourceNote]:
@@ -57,14 +91,20 @@ def create_source_notes(run_paths: RunPaths, urls: list[str]) -> list[SourceNote
     return source_notes
 
 
-def create_report_note(run_paths: RunPaths, urls: list[str], source_notes: list[SourceNote]) -> None:
+
+def create_report_note(
+    run_paths: RunPaths,
+    urls: list[str],
+    source_notes: list[SourceNote],
+    memory: str,
+) -> None:
     source_links = [f"- [[{item.vault_link}|{item.name}]]" for item in source_notes]
     web_links = [f"- {url}" for url in urls] or ["- No search results found"]
 
     mermaid_lines = [
         "```mermaid",
         "graph TD",
-        '    T["[[Trends]]"] --> R["Current Report"]',
+        '    T["[[Research]]"] --> R["Current Report"]',
     ]
     for idx, item in enumerate(source_notes, start=1):
         mermaid_lines.append(f'    R --> S{idx}["{item.name}"]')
@@ -77,7 +117,8 @@ def create_report_note(run_paths: RunPaths, urls: list[str], source_notes: list[
             f"- Query: {run_paths.query}",
             f"- Created: {run_paths.timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
             f"- Source folder: `{run_paths.sources_dir}`",
-            "- Tags: #uiux #trends #ai-summary",
+            "- Memory file: [[memory|memory]]",
+            "- Tags: #research #summary #agent",
             "",
             "## Search Results",
             "",
@@ -87,6 +128,10 @@ def create_report_note(run_paths: RunPaths, urls: list[str], source_notes: list[
             "",
             *(source_links or ["- No source notes created"]),
             "",
+            "## Active Memory",
+            "",
+            memory.strip() or "No saved memory yet.",
+            "",
             "## Obsidian Graph",
             "",
             *mermaid_lines,
@@ -94,6 +139,7 @@ def create_report_note(run_paths: RunPaths, urls: list[str], source_notes: list[
         ]
     )
     write_text(run_paths.report_path, content)
+
 
 
 def update_index_note(config: AppConfig, latest_run: RunPaths, latest_sources: list[SourceNote]) -> None:
@@ -108,12 +154,13 @@ def update_index_note(config: AppConfig, latest_run: RunPaths, latest_sources: l
 
     content = "\n".join(
         [
-            "# Trends",
+            "# Research",
             "",
             f"- Latest report: {latest_report_link}",
             f"- Query: {latest_run.query}",
             f"- Latest source folder: `{latest_run.sources_dir}`",
-            "- Tags: #dashboard #trends",
+            "- Memory: [[memory|memory]]",
+            "- Tags: #dashboard #research",
             "",
             "## Recent Reports",
             "",
@@ -125,7 +172,7 @@ def update_index_note(config: AppConfig, latest_run: RunPaths, latest_sources: l
             "",
             "## Graph Tips",
             "",
-            "- Obsidian graph view will connect the dashboard, each report, and the grouped source notes.",
+            "- Obsidian graph view will connect the dashboard, each report, the memory note, and grouped source notes.",
             "- Each run is grouped by `Reports/YYYY/MM/DD/query-slug` and `Sources/YYYY/MM/DD/query-slug`.",
             "",
         ]

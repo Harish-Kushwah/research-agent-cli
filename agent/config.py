@@ -1,10 +1,10 @@
-from dataclasses import dataclass
+﻿from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 
 DEFAULT_MODEL = "qwen3.5:4b"
-DEFAULT_QUERY = "latest UI UX trends 2026"
+DEFAULT_QUERY = "latest AI news"
 
 
 @dataclass(frozen=True)
@@ -12,6 +12,8 @@ class AppConfig:
     vault_dir: Path = Path("Vault/Harish")
     model: str = DEFAULT_MODEL
     max_results: int = 5
+    index_note_name: str = "Research.md"
+    memory_file_name: str = "memory.md"
 
     @property
     def reports_root(self) -> Path:
@@ -23,7 +25,11 @@ class AppConfig:
 
     @property
     def index_note(self) -> Path:
-        return self.vault_dir / "Trends.md"
+        return self.vault_dir / self.index_note_name
+
+    @property
+    def memory_file(self) -> Path:
+        return self.vault_dir / self.memory_file_name
 
 
 @dataclass(frozen=True)

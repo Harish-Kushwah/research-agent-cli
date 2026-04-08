@@ -1,8 +1,8 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from ui_news_agent.config import AppConfig
-from ui_news_agent.pipeline import run_agent
+from agent.config import AppConfig
+from agent.pipeline import run_agent
 
 
 def run_interval(query: str, minutes: int, config: AppConfig | None = None) -> None:

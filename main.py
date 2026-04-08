@@ -1,4 +1,4 @@
-from ui_news_agent.cli import main
+from agent.cli import main
 
 
 if __name__ == "__main__":

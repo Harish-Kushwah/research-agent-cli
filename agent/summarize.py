@@ -1,24 +1,31 @@
-from pathlib import Path
+﻿from pathlib import Path
 
 import ollama
 
-from ui_news_agent.utils import append_text
+from agent.utils import append_text
 
 
-def build_prompt(query: str, content: str) -> str:
+def build_prompt(query: str, content: str, memory: str = "") -> str:
+    memory_block = memory.strip() or "No saved memory yet."
     return f"""
-You are a UI/UX expert.
+You are a generic research assistant.
 
 Use the web content below to produce:
-1. Latest UI/UX trends
-2. New tools/libraries
-3. Real-world examples
-4. Key takeaways
+1. A concise summary
+2. Key findings
+3. Important examples, tools, companies, or entities mentioned
+4. Risks, caveats, and open questions
+5. Key takeaways
 
 Rules:
 - Keep it short and structured
 - Use bullet points
 - Mention when the web content is weak or incomplete
+- Prefer concrete details over vague claims
+- Use the saved memory when it helps with formatting and continuity, but do not invent facts
+
+Saved memory:
+{memory_block}
 
 Query:
 {query}
@@ -28,8 +35,14 @@ Content:
 """
 
 
-def summarize_with_streaming(query: str, content: str, report_path: Path, model: str) -> tuple[str, str]:
-    prompt = build_prompt(query, content)
+def summarize_with_streaming(
+    query: str,
+    content: str,
+    report_path: Path,
+    model: str,
+    memory: str = "",
+) -> tuple[str, str]:
+    prompt = build_prompt(query, content, memory=memory)
     stream = ollama.chat(
         model=model,
         messages=[{"role": "user", "content": prompt}],

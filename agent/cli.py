@@ -1,11 +1,11 @@
 ﻿import argparse
 
-from ui_news_agent.config import AppConfig, DEFAULT_QUERY
-from ui_news_agent.pipeline import run_agent
+from agent.config import AppConfig, DEFAULT_QUERY
+from agent.pipeline import run_agent
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run the UI news agent.")
+    parser = argparse.ArgumentParser(description="Run the generic research agent.")
     parser.add_argument("--query", default=DEFAULT_QUERY, help="Search query to run.")
     parser.add_argument(
         "--vault-dir",
@@ -38,7 +38,7 @@ def main() -> int:
     )
 
     if args.schedule_minutes > 0:
-        from ui_news_agent.scheduler import run_interval
+        from agent.scheduler import run_interval
 
         run_interval(args.query, args.schedule_minutes, config)
         return 0
@@ -52,4 +52,3 @@ def _path_from_string(value: str):
     from pathlib import Path
 
     return Path(value)
-

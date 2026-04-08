@@ -3,7 +3,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from ui_news_agent.utils import browser_user_agent
+from agent.utils import browser_user_agent
 
 try:
     from ddgs import DDGS

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+﻿from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -18,5 +18,6 @@ class RunResult:
     report_path: Path
     urls: list[str]
     source_notes: list[SourceNote]
+    memory_used: str
     thinking: str
     answer: str
