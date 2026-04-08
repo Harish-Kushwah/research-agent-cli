@@ -1,31 +1,80 @@
-﻿# Research Agent
+# Research Agent CLI
 
-Simple research agent package with:
+`research-agent-cli` is a Python research assistant that:
 
-- CLI usage from CMD
-- optional desktop launcher
-- Obsidian vault reporting
+- searches the web
+- summarizes findings with a local Ollama model
+- saves reports into an Obsidian vault
+- supports CLI, scheduling, and desktop-style interfaces
 
-## Install
+## Features
+
+- Web search with multiple fallback providers
+- Streaming summary generation
+- Obsidian report and source-note creation
+- Persistent `memory.md` for reusable context
+- CLI command support
+- Desktop launcher support
+
+## Installation
+
+Install from a local checkout:
 
 ```powershell
 pip install -e .
 ```
 
-## Run from CMD
+## Usage
+
+Run from the CLI:
 
 ```powershell
 research-agent --query "latest AI news"
 ```
 
-## Run as module
+Run as a Python module:
 
 ```powershell
 python -m agent --query "latest AI news"
 ```
 
-## Run desktop app
+Launch the desktop app:
 
 ```powershell
 research-agent --app
 ```
+
+## Example Use Cases
+
+- daily AI news monitoring
+- competitor research
+- developer tooling summaries
+- startup and product trend tracking
+- building an Obsidian research vault
+
+## Requirements
+
+- Python 3.10+
+- Ollama installed locally if you want model summarization
+- An Obsidian vault path for note output
+
+## Output
+
+The agent writes:
+
+- research dashboard notes
+- timestamped reports
+- grouped source notes
+- reusable memory context in `memory.md`
+
+## Development
+
+Run directly during development:
+
+```powershell
+python -m agent --help
+```
+
+## License
+
+MIT
