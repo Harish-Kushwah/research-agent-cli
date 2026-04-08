@@ -1,1 +1,5 @@
 venv
+Vault
+Vault/Harish/*
+__pycache__/
+*.pyc
