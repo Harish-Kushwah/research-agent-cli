@@ -6,3 +6,5 @@ __pycache__/
 terminal-app/node_modules/
 terminal-app/dist/
 terminal-app/
+.pypirc
+dist

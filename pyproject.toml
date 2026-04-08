@@ -45,5 +45,10 @@ dependencies = [
 [project.scripts]
 research-agent = "agent.cli:main"
 
+[project.urls]
+Homepage = "https://github.com/Harish-Kushwah/research-agent-cli"
+Repository = "https://github.com/Harish-Kushwah/research-agent-cli"
+Issues = "https://github.com/Harish-Kushwah/research-agent-cli/issues"
+
 [tool.setuptools]
 packages = ["agent"]
