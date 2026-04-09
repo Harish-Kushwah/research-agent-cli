@@ -13,11 +13,18 @@ class SourceNote:
 
 
 @dataclass(frozen=True)
+class LocalModelStatus:
+    available: bool
+    reason: str
+
+
+@dataclass(frozen=True)
 class RunResult:
     query: str
     report_path: Path
     urls: list[str]
     source_notes: list[SourceNote]
     memory_used: str
+    model_status: LocalModelStatus
     thinking: str
     answer: str

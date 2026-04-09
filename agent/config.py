@@ -5,13 +5,15 @@ from pathlib import Path
 
 DEFAULT_MODEL = "qwen3.5:4b"
 DEFAULT_QUERY = "latest AI news"
+DEFAULT_RESPONSE_MODE = "full"
 
 
 @dataclass(frozen=True)
 class AppConfig:
-    vault_dir: Path = Path("Vault/Harish")
+    vault_dir: Path
     model: str = DEFAULT_MODEL
     max_results: int = 5
+    response_mode: str = DEFAULT_RESPONSE_MODE
     index_note_name: str = "Research.md"
     memory_file_name: str = "memory.md"
 

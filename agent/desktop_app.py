@@ -6,8 +6,10 @@ import tkinter as tk
 from contextlib import redirect_stderr, redirect_stdout
 from tkinter import messagebox, scrolledtext
 
-from agent.config import AppConfig, DEFAULT_QUERY
+from agent.cli import MAX_RESULTS_PREF_KEY, MODEL_PREF_KEY, VAULT_PREF_KEY
+from agent.config import AppConfig, DEFAULT_MODEL, DEFAULT_QUERY
 from agent.pipeline import run_agent
+from agent.storage import get_last_report_path, get_preference, initialize_storage, set_preference
 
 
 class QueueWriter(io.TextIOBase):
@@ -25,19 +27,21 @@ class QueueWriter(io.TextIOBase):
 
 class ResearchDesktopApp:
     def __init__(self) -> None:
+        initialize_storage()
         self.root = tk.Tk()
         self.root.title("Research Agent")
         self.root.geometry("980x700")
         self.root.configure(bg="#111111")
 
         self.output_queue: queue.Queue[str] = queue.Queue()
-        self.latest_report_path = None
+        saved_report = get_last_report_path()
+        self.latest_report_path = _path(saved_report) if saved_report else None
         self.is_running = False
 
         self.query_var = tk.StringVar(value=DEFAULT_QUERY)
-        self.vault_var = tk.StringVar(value="Vault/Harish")
-        self.model_var = tk.StringVar(value="qwen3.5:4b")
-        self.max_results_var = tk.StringVar(value="5")
+        self.vault_var = tk.StringVar(value=_default_vault_value())
+        self.model_var = tk.StringVar(value=_default_model_value())
+        self.max_results_var = tk.StringVar(value=_default_max_results_value())
 
         self._build_ui()
         self.root.after(100, self._drain_output_queue)
@@ -98,7 +102,7 @@ class ResearchDesktopApp:
             relief="flat",
             padx=14,
             pady=8,
-            state="disabled",
+            state="normal" if self.latest_report_path else "disabled",
         )
         self.open_report_button.pack(side="left")
 
@@ -165,15 +169,20 @@ class ResearchDesktopApp:
             messagebox.showerror("Invalid Max Results", "Max Results must be a number.")
             return
 
+        normalized_vault = _path(vault_dir).expanduser().resolve()
+        set_preference(VAULT_PREF_KEY, str(normalized_vault))
+        set_preference(MODEL_PREF_KEY, model)
+        set_preference(MAX_RESULTS_PREF_KEY, str(max_results_int))
+
         self.is_running = True
         self.run_button.configure(state="disabled")
         self.status_label.configure(text="Running research...")
         self._write_output(f"\n> Query: {query}\n")
-        self._write_output(f"> Vault: {vault_dir}\n")
+        self._write_output(f"> Vault: {normalized_vault}\n")
         self._write_output(f"> Model: {model}\n\n")
 
         config = AppConfig(
-            vault_dir=_path(vault_dir),
+            vault_dir=normalized_vault,
             model=model,
             max_results=max_results_int,
         )
@@ -189,13 +198,18 @@ class ResearchDesktopApp:
         writer = QueueWriter(self.output_queue)
         try:
             with redirect_stdout(writer), redirect_stderr(writer):
-                result = run_agent(query, config)
+                result = run_agent(query, config, progress_callback=self._queue_progress)
+                if not result.model_status.available:
+                    print(f"\n[info] Search completed, but summary was skipped. {result.model_status.reason}")
                 print(f"\nSaved report to: {result.report_path}")
                 self.latest_report_path = result.report_path
                 self.output_queue.put("__RUN_COMPLETE__")
         except Exception as exc:
             self.output_queue.put(f"\nRun failed: {exc}\n")
             self.output_queue.put("__RUN_COMPLETE__")
+
+    def _queue_progress(self, message: str) -> None:
+        self.output_queue.put(f"[progress] {message}\n")
 
     def _drain_output_queue(self) -> None:
         while True:
@@ -245,7 +259,25 @@ def launch_desktop_app() -> None:
 
 
 
-def _path(value: str):
+def _path(value: str | None):
     from pathlib import Path
 
-    return Path(value)
+    return Path(value) if value else Path.cwd()
+
+
+
+def _default_vault_value() -> str:
+    saved = get_preference(VAULT_PREF_KEY)
+    if saved:
+        return str(_path(saved).expanduser().resolve())
+    return str(_path(None).resolve())
+
+
+
+def _default_model_value() -> str:
+    return get_preference(MODEL_PREF_KEY) or DEFAULT_MODEL
+
+
+
+def _default_max_results_value() -> str:
+    return get_preference(MAX_RESULTS_PREF_KEY) or "5"

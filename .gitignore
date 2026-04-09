@@ -7,4 +7,5 @@ terminal-app/node_modules/
 terminal-app/dist/
 terminal-app/
 .pypirc
-dist
+dist/
+.agent-data/

@@ -1,12 +1,13 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
+﻿from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
 from agent.config import AppConfig
 from agent.pipeline import run_agent
 
 
+
 def run_interval(query: str, minutes: int, config: AppConfig | None = None) -> None:
-    config = config or AppConfig()
+    config = config or AppConfig(vault_dir=_default_vault_dir())
     scheduler = BlockingScheduler()
     scheduler.add_job(
         run_agent,
@@ -20,3 +21,10 @@ def run_interval(query: str, minutes: int, config: AppConfig | None = None) -> N
     print("Press Ctrl+C to stop.")
     run_agent(query, config)
     scheduler.start()
+
+
+
+def _default_vault_dir():
+    from pathlib import Path
+
+    return Path.cwd()

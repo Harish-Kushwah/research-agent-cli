@@ -1,6 +1,6 @@
 param(
     [string]$Query = "latest UI UX trends 2026",
-    [string]$VaultDir = "Vault/Harish",
+    [string]$VaultDir = "Vault",
     [string]$Model = "qwen3.5:4b",
     [int]$MaxResults = 5,
     [int]$ScheduleMinutes = 0
