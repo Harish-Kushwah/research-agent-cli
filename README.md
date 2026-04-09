@@ -24,18 +24,24 @@ Install from a local checkout:
 pip install -e .
 ```
 
+Install from TestPyPI during verification:
+
+```powershell
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple research-agent-cli==0.1.1
+```
+
 ## Usage
 
 Run from the CLI:
 
 ```powershell
-research-agent --query "latest AI news"
+research-agent "latest AI news"
 ```
 
 Run as a Python module:
 
 ```powershell
-python -m agent --query "latest AI news"
+python -m agent "latest AI news"
 ```
 
 Launch the desktop app:

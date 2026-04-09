@@ -7,11 +7,16 @@ from agent.pipeline import run_agent
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the generic research agent.")
     parser.add_argument(
+        "query_text",
+        nargs="*",
+        help='Search query as plain text, for example: research-agent "what is OS"',
+    )
+    parser.add_argument(
         "--app",
         action="store_true",
         help="Launch the desktop terminal app.",
     )
-    parser.add_argument("--query", default=DEFAULT_QUERY, help="Search query to run.")
+    parser.add_argument("--query", default=None, help="Search query to run.")
     parser.add_argument(
         "--vault-dir",
         default="Vault/Harish",
@@ -36,6 +41,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    query = args.query or " ".join(args.query_text).strip() or DEFAULT_QUERY
+
     if args.app:
         from agent.desktop_app import launch_desktop_app
 
@@ -51,10 +58,10 @@ def main() -> int:
     if args.schedule_minutes > 0:
         from agent.scheduler import run_interval
 
-        run_interval(args.query, args.schedule_minutes, config)
+        run_interval(query, args.schedule_minutes, config)
         return 0
 
-    result = run_agent(args.query, config)
+    result = run_agent(query, config)
     print(f"\n\nSaved report to: {result.report_path}")
     return 0
 
