@@ -57,6 +57,12 @@ Run from the CLI:
 research-agent "latest AI news"
 ```
 
+Short alias:
+
+```powershell
+ra "latest AI news"
+```
+
 Run as a Python module:
 
 ```powershell
@@ -67,6 +73,12 @@ Launch the desktop app:
 
 ```powershell
 research-agent --app
+```
+
+Short alias:
+
+```powershell
+ra --app
 ```
 
 Use a custom vault path:
