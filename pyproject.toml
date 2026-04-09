@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "research-agent-cli"
-version = "0.1.2"
+version = "0.1.3"
 description = "A simple research agent that searches, summarizes, and writes to an Obsidian vault."
 readme = "README.md"
 requires-python = ">=3.10"
